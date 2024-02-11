@@ -1,0 +1,29 @@
+name: Check New Tag Change
+
+on:
+  push:
+    branches:
+      - main
+  # pull_request:
+  #   branches:
+  #     - main
+
+jobs:
+  check_new_tag:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Check if newTag is changed
+      run: |
+        if git diff --name-only ${{ github.event.before }} ${{ github.sha }} | grep -q 'kustomization.yaml'; then
+          old_tag=$(grep 'newTag' kustomization.yaml | awk '{print $2}')
+          echo "Old newTag value: $old_tag"
+          
+          new_tag=$(git show ${{ github.sha }}:kustomization.yaml | grep 'newTag' | awk '{print $2}')
+          echo "New newTag value: $new_tag"
+        else
+          echo "No changes to kustomization.yaml"
+        fi
