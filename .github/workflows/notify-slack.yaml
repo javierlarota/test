@@ -20,14 +20,12 @@ jobs:
 
     - name: Check if newTag is changed
       run: |
-        for file in $(find . -name "kustomization.yaml"); do
-          if git diff --name-only ${{ github.event.before }} ${{ github.sha }} | grep -q "$file"; then
-            old_tag=$(grep 'newTag' "$file" | awk '{print $2}')
-            echo "Old newTag value in $file: $old_tag"
-
-            new_tag=$(git show ${{ github.sha }}:"$file" | grep 'newTag' | awk '{print $2}')
-            echo "New newTag value in $file: $new_tag"
-          else
-            echo "No changes to $file"
+        # Find all directories containing kustomization.yaml files
+        directories=$(find . -type f -name 'kustomization.yaml' -exec dirname {} \; | sort -u)
+        for dir in $directories; do
+          # Check if newTag property is being changed
+          if git diff --name-only ${{ github.event.before }} ${{ github.sha }} -- $dir/kustomization.yaml | grep -q 'newTag'; then
+            echo "newTag property changed in $dir/kustomization.yaml"
+            exit 1
           fi
         done
