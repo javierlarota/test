@@ -4,6 +4,8 @@ on:
   push:
     branches:
       - main
+    paths:
+      - overlays/**/kustomization.yaml
   # pull_request:
   #   branches:
   #     - main
@@ -18,11 +20,11 @@ jobs:
 
     - name: Check if newTag is changed
       run: |
-        if git diff --name-only ${{ github.event.before }} ${{ github.sha }} | grep -q 'kustomization.yaml'; then
-          old_tag=$(grep 'newTag' kustomization.yaml | awk '{print $2}')
+        if git diff --name-only ${{ github.event.before }} ${{ github.sha }} | grep -q 'overlays/dev1/bn-euc1-neutron-dev-eks01/neutron-account-service/kustomization.yaml'; then
+          old_tag=$(grep 'newTag' overlays/dev1/bn-euc1-neutron-dev-eks01/neutron-account-service/kustomization.yaml | awk '{print $2}')
           echo "Old newTag value: $old_tag"
           
-          new_tag=$(git show ${{ github.sha }}:kustomization.yaml | grep 'newTag' | awk '{print $2}')
+          new_tag=$(git show ${{ github.sha }}:overlays/dev1/bn-euc1-neutron-dev-eks01/neutron-account-service/kustomization.yaml | grep 'newTag' | awk '{print $2}')
           echo "New newTag value: $new_tag"
         else
           echo "No changes to kustomization.yaml"
