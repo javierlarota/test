@@ -1,6 +1,7 @@
 name: Check New Tag Change
 
 on:
+  workflow_dispatch:
   push:
     branches:
       - main
