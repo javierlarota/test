@@ -11,6 +11,8 @@ on:
 jobs:
   check_new_tag:
     runs-on: ubuntu-latest
+    with:
+      fetch-depth: 2
 
     steps:
     - name: Checkout code
@@ -18,9 +20,6 @@ jobs:
 
     - name: Check if newTag is changed
       run: |
-        # Fetch latest changes to ensure accurate comparison
-        git fetch --prune
-
         # Get the hashes of the last two commits
         LAST_COMMIT=$(git rev-parse HEAD)
         PREVIOUS_COMMIT=$(git rev-parse HEAD^)
