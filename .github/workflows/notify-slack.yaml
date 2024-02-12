@@ -28,6 +28,7 @@ jobs:
         echo "Previous Commit: $PREVIOUS_COMMIT"
         # Get the list of changed kustomization.yaml files
         changed_files=$(git diff --name-only $PREVIOUS_COMMIT $LAST_COMMIT | grep 'kustomization.yaml')
+        echo "diff completed"
         echo "$changed_files"
 
         # Check if there are any changed files
