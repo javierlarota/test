@@ -42,3 +42,4 @@ jobs:
         else
             echo "No kustomization.yaml files were changed."
         fi
+      shell: bash
