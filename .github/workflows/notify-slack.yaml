@@ -24,13 +24,11 @@ jobs:
         LAST_COMMIT=$(git rev-parse HEAD)
         PREVIOUS_COMMIT=$(git rev-parse HEAD^)
 
-        changed_files=$(git diff --name-only $PREVIOUS_COMMIT $LAST_COMMIT)
-        echo "Changed files: $changed_files"
-        changed_kustomization=$(echo "$changed_files" | grep -q 'kustomization.yaml')
-        echo "Changed kustomization files: $changed_kustomization"
-
+        # Get the list of changed kustomization.yaml files
+        changed_files=$(git diff --name-only $PREVIOUS_COMMIT $LAST_COMMIT | grep 'kustomization.yaml')
+        
         # Check if there are any changed files
-        if [[ -n $changed_kustomization ]]; then
+        if [[ -n $changed_files ]]; then
             # Iterate over each changed file
             while read -r file_path; do
                 # Check if the value of the property newTag was changed
