@@ -34,7 +34,7 @@ jobs:
           # Check if the value of the property newTag was changed
           if git diff $PREVIOUS_COMMIT $LAST_COMMIT -- "$file_path" | grep -q '^\+.*newTag'; then
             NEW_TAG_VALUE=$(grep 'newTag:' "$file_path" | tail -n 1 | awk '{print $2}')
-            echo "The value of 'newTag' in $file_path was changed to: $NEW_TAG_VALUE for service $SERVICE_NAME in the environment $ENVIRONMENT"
+            echo "The service $SERVICE_NAME was update to version $NEW_TAG_VALUE in the $ENVIRONMENT environment. Argocd will re-deploy it soon."
           else
             echo "The file $file_path was changed but the value of 'newTag' was not modified."
           fi
