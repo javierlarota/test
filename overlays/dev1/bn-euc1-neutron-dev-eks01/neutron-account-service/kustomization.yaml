@@ -6,7 +6,7 @@ namespace: neutron-dev1
 images:
   - name: neutron-account-service-docker-image
     newName: 460853227243.dkr.ecr.us-east-1.amazonaws.com/neutron-account-service
-    newTag: 1.0.0-alpha.89
+    newTag: 1.0.0-alpha.90
 patches:
   - path: patches/serviceAccount.yaml
     target:
