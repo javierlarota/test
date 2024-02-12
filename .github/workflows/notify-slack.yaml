@@ -11,12 +11,12 @@ on:
 jobs:
   check_new_tag:
     runs-on: ubuntu-latest
-    with:
-      fetch-depth: 2
 
     steps:
     - name: Checkout code
       uses: actions/checkout@v2
+      with:
+        fetch-depth: 2
 
     - name: Check if newTag is changed
       run: |
