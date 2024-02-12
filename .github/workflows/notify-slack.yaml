@@ -26,26 +26,22 @@ jobs:
 
         changed_files=$(git diff --name-only $PREVIOUS_COMMIT $LAST_COMMIT)
         echo "Changed files: $changed_files"
-        if echo "$changed_files" | grep -q 'kustomization.yaml'; then 
-          changed_kustomization=$(echo "$changed_files" | grep -q 'kustomization.yaml')
-          echo "Changed kustomization files: $changed_kustomization"
+        changed_kustomization=$(echo "$changed_files" | grep -q 'kustomization.yaml')
+        echo "Changed kustomization files: $changed_kustomization"
 
-          # Check if there are any changed files
-          if [[ -n $changed_kustomization ]]; then
-              # Iterate over each changed file
-              while read -r file_path; do
-                  # Check if the value of the property newTag was changed
-                  if git diff $PREVIOUS_COMMIT $LAST_COMMIT -- "$file_path" | grep -q '^\+.*newTag'; then
-                      NEW_TAG_VALUE=$(grep 'newTag:' "$file_path" | tail -n 1 | awk '{print $2}')
-                      echo "The value of 'newTag' in $file_path was changed to: $NEW_TAG_VALUE"
-                  else
-                      echo "The file $file_path was changed but the value of 'newTag' was not modified."
-                  fi
-              done <<< "$changed_files"
-          else
-              echo "No kustomization.yaml files were changed."
-          fi
+        # Check if there are any changed files
+        if [[ -n $changed_kustomization ]]; then
+            # Iterate over each changed file
+            while read -r file_path; do
+                # Check if the value of the property newTag was changed
+                if git diff $PREVIOUS_COMMIT $LAST_COMMIT -- "$file_path" | grep -q '^\+.*newTag'; then
+                    NEW_TAG_VALUE=$(grep 'newTag:' "$file_path" | tail -n 1 | awk '{print $2}')
+                    echo "The value of 'newTag' in $file_path was changed to: $NEW_TAG_VALUE"
+                else
+                    echo "The file $file_path was changed but the value of 'newTag' was not modified."
+                fi
+            done <<< "$changed_files"
         else
-          echo "No kustomization.yaml files were changed."
+            echo "No kustomization.yaml files were changed."
         fi
       shell: bash
