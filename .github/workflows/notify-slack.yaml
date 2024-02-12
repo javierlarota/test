@@ -26,7 +26,7 @@ jobs:
 
         changed_files=$(git diff --name-only $PREVIOUS_COMMIT $LAST_COMMIT)
         echo "Changed files: $changed_files"
-        if "$changed_files" | grep -q 'kustomization.yaml'; then 
+        if echo "$changed_files" | grep -q 'kustomization.yaml'; then 
           changed_kustomization=$(echo "$changed_files" | grep -q 'kustomization.yaml')
           echo "Changed kustomization files: $changed_kustomization"
 
