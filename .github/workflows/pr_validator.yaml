@@ -1,0 +1,27 @@
+# This workflow is triggered on pull requests to the main branch.
+# It validates the pull request by checking the body and title for specific keywords.
+name: 'pull-request-validator'
+
+on:
+  pull_request:
+    types: [opened, edited, synchronize]
+    branches:
+    - main
+
+jobs:
+  pull_request_validator:
+    name: 'Pull Request Validator'
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: validate pull request
+      uses: javierlarota/javier-actions/pull-request-validator@main
+      with:
+        pullrequest_body: ${{ github.event.pull_request.body }}
+        require_checklist: 'true'
+        neutron_app_id: ${{ secrets.NEUTRON_APP_ID }}
+        neutron_private_key: ${{ secrets.NEUTRON_APP_PRIVATE_KEY }}
+
+        #github_token: ${{ secrets.GITHUB_TOKEN }}
+        #pullrequest_title: ${{ github.event.pull_request.title }}
+ 
