@@ -15,7 +15,7 @@ jobs:
 
     steps:
     - name: validate pull request
-      uses: javierlarota/javier-actions/pull-request-validator@main
+      uses: javierlarota/javier-actions/pull-request-checklist-validator@main
       with:
         pullrequest_body: ${{ github.event.pull_request.body }}
         require_checklist: 'true'
