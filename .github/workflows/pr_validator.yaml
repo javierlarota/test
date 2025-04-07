@@ -22,6 +22,12 @@ jobs:
         neutron_app_id: ${{ secrets.NEUTRON_APP_ID }}
         neutron_private_key: ${{ secrets.NEUTRON_APP_PRIVATE_KEY }}
 
+
+    - name: Enforce Jira Issue Key in Pull Request Title
+      uses: ryanvade/enforce-pr-title-style-action@v2.1.2
+      with:
+        projectKey: 'NEX'
+
         #github_token: ${{ secrets.GITHUB_TOKEN }}
         #pullrequest_title: ${{ github.event.pull_request.title }}
  
