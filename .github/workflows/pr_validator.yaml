@@ -23,7 +23,7 @@ jobs:
         neutron_private_key: ${{ secrets.NEUTRON_APP_PRIVATE_KEY }}
 
     - name: validate pull request title
-      uses: javierlarota/javier-actions/pull-request-jira-ticket-validator@main
+      uses: javierlarota/javier-actions/pull-request-title-validator@main
       with:
         pullrequest_title: ${{ github.event.pull_request.title }}
         jira_projects: |
