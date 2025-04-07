@@ -14,7 +14,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: validate pull request
+    - name: validate pull request Checklist
       uses: javierlarota/javier-actions/pull-request-checklist-validator@main
       with:
         pullrequest_body: ${{ github.event.pull_request.body }}
@@ -22,12 +22,10 @@ jobs:
         neutron_app_id: ${{ secrets.NEUTRON_APP_ID }}
         neutron_private_key: ${{ secrets.NEUTRON_APP_PRIVATE_KEY }}
 
-
-    - name: Enforce Jira Issue Key in Pull Request Title
-      uses: ryanvade/enforce-pr-title-style-action@v2.1.2
+    - name: validate pull request title
+      uses: javierlarota/javier-actions/pull-request-jira-ticket-validator@main
       with:
-        projectKey: 'NEX'
-
-        #github_token: ${{ secrets.GITHUB_TOKEN }}
-        #pullrequest_title: ${{ github.event.pull_request.title }}
- 
+        pullrequest_title: ${{ github.event.pull_request.title }}
+        jira_projects: 'NEX'
+        neutron_app_id: ${{ secrets.NEUTRON_APP_ID }}
+        neutron_private_key: ${{ secrets.NEUTRON_APP_PRIVATE_KEY }}
