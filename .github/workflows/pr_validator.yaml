@@ -26,6 +26,7 @@ jobs:
       uses: javierlarota/javier-actions/pull-request-jira-ticket-validator@main
       with:
         pullrequest_title: ${{ github.event.pull_request.title }}
-        jira_projects: 'NEX'
+        jira_projects: |
+          'NEX'
         neutron_app_id: ${{ secrets.NEUTRON_APP_ID }}
         neutron_private_key: ${{ secrets.NEUTRON_APP_PRIVATE_KEY }}
