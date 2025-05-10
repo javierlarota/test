@@ -39,7 +39,22 @@ jobs:
           $frontend_components_json = ./.github/workflows/scripts/release-pullrequest-update-database.ps1 -source_environment '${{ inputs.source_environment }}' -target_environment '${{ inputs.target_environment }}'
           $database_components_json =  ./.github/workflows/scripts/release-pullrequest-update-frontend.ps1 -source_environment '${{ inputs.source_environment }}' -target_environment '${{ inputs.target_environment }}'
         
-          echo "backend_services_json=$backend_services_json" >> $env:GITHUB_OUTPUT
+            $transformed_json = $backend_services_json | ForEach-Object {
+            [PSCustomObject]@{
+              serviceName    = $_.serviceName
+              currentVersion = $_.currentVersion
+              newVersion     = $_.version
+              updated        = $_.updated
+            }
+          }
+
+          $transformed_json | ConvertTo-Json -Depth 10 | Out-File -FilePath transformed_backend_services.json
+          echo "transformed_backend_services_json=$(Get-Content transformed_backend_services.json -Raw)" >> $env:GITHUB_OUTPUT
+
+
+
+
+          #echo "backend_services_json=$backend_services_json" >> $env:GITHUB_OUTPUT
           echo "frontend_components_json=$frontend_components_json" >> $env:GITHUB_OUTPUT
           echo "database_components_json=$database_components_json" >> $env:GITHUB_OUTPUT
         shell: pwsh
@@ -48,7 +63,7 @@ jobs:
         uses: buildingcash/json-to-markdown-table-action@v1
         id: services_md
         with:
-          json: '${{ steps.copy-environment-versions.outputs.backend_services_json }}'
+          json: '${{ steps.copy-environment-versions.outputs.transformed_backend_services_json }}'
 
       - name: Convert frontend components json to Markdown
         uses: buildingcash/json-to-markdown-table-action@v1
@@ -71,7 +86,7 @@ jobs:
           body: |
             This pull request copies all component versions from the **${{ inputs.source_environment }}** environment to the **${{ inputs.target_environment }}** environment.
 
-            ## Services and Components included in the release
+            ## Services and Components to be copied
             ### Backend
             ${{ steps.services_md.outputs.table }}
 
