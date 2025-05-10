@@ -31,7 +31,7 @@ jobs:
       - name: Checkout the repository from the release tag
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0
+          fetch-depth: 1
           show-progress: false
 
       - name: Copy environment versions
