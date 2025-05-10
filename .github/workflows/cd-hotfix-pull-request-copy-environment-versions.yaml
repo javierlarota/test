@@ -8,14 +8,15 @@ on:
         type: choice
         description: Source Environment
         options:
-          - qa
           - prod
+          - qa
+          
       target_environment:
         type: choice
         description: Target Environment
         options:
-          - dev
           - qa
+          - dev          
 
 permissions:
   contents: write
