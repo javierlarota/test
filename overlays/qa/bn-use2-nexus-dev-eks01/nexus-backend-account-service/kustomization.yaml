@@ -7,7 +7,7 @@ namespace: nexus-qa
 images:
   - name: nexus-backend-account-service-docker-image
     newName: 460853227243.dkr.ecr.us-east-1.amazonaws.com/nexus-backend-account-service
-    newTag: 1.0.0-alpha.143-2c2b218
+    newTag: 1.0.0-alpha.137-933e8cf
 patches:
   - path: patches/serviceAccount.yaml
     target:
