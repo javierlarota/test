@@ -23,7 +23,8 @@ permissions:
   pull-requests: write
 
 jobs:
-  create-pull-request-to-copy-versions:
+  copy-versions:
+    name: Copy Versions from ${{ github.event.inputs.source_environment }} to ${{ github.event.inputs.target_environment }}
     runs-on: ubuntu-latest
 
     steps:
