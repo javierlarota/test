@@ -105,7 +105,7 @@ jobs:
           body: |
             This pull request copies all component versions from the **${{ inputs.source_environment }}** environment to the **${{ inputs.target_environment }}** environment.
 
-            ## Services and Components to be copied
+            ## Summary of changes
             ### Backend
             ${{ steps.services_md.outputs.table }}
 
