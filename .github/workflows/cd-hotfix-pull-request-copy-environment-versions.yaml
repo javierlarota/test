@@ -39,7 +39,8 @@ jobs:
           $frontend_components_json = ./.github/workflows/scripts/release-pullrequest-update-database.ps1 -source_environment '${{ inputs.source_environment }}' -target_environment '${{ inputs.target_environment }}'
           $database_components_json =  ./.github/workflows/scripts/release-pullrequest-update-frontend.ps1 -source_environment '${{ inputs.source_environment }}' -target_environment '${{ inputs.target_environment }}'
         
-            $transformed_json = $backend_services_json | ConvertFrom-Json | ForEach-Object {
+          # Transform backend components JSON to a format that can be used in the Markdown table
+          $transformed_json = $backend_services_json | ConvertFrom-Json | ForEach-Object {
             [PSCustomObject]@{
               serviceName    = $_.serviceName
               currentVersion = $_.currentVersion
@@ -47,16 +48,33 @@ jobs:
               updated        = $_.updated
             }
           }
-
           $transformed_backend_services_json = $transformed_json | ConvertTo-Json -AsArray -Compress -Depth 10
+          
+          # Transform frontend components JSON to a format that can be used in the Markdown table
+          $transformed_json = $frontend_components_json | ConvertFrom-Json | ForEach-Object {
+            [PSCustomObject]@{
+              component    = $_.component
+              currentVersion = $_.currentVersion
+              newVersion     = $_.version
+              updated        = $_.updated
+            }
+          }
+          $transformed_frontend_components_json = $transformed_json | ConvertTo-Json -AsArray -Compress -Depth 10
+
+          # Convert the database components JSON to a format that can be used in the Markdown table
+          $transformed_json = $database_components_json | ConvertFrom-Json | ForEach-Object {
+            [PSCustomObject]@{
+              component    = $_.component
+              currentVersion = $_.currentVersion
+              newVersion     = $_.version
+              updated        = $_.updated
+            }
+          }
+          $transformed_database_components_json = $transformed_json | ConvertTo-Json -AsArray -Compress -Depth 10
+
           echo "transformed_backend_services_json=$transformed_backend_services_json" >> $env:GITHUB_OUTPUT
-
-
-
-
-          #echo "backend_services_json=$backend_services_json" >> $env:GITHUB_OUTPUT
-          echo "frontend_components_json=$frontend_components_json" >> $env:GITHUB_OUTPUT
-          echo "database_components_json=$database_components_json" >> $env:GITHUB_OUTPUT
+          echo "transformed_frontend_components_json=$transformed_frontend_components_json" >> $env:GITHUB_OUTPUT
+          echo "transformed_database_components_json=$transformed_database_components_json" >> $env:GITHUB_OUTPUT
         shell: pwsh
 
       - name: Convert services json to Markdown
@@ -69,13 +87,13 @@ jobs:
         uses: buildingcash/json-to-markdown-table-action@v1
         id: frontend_md
         with:
-          json: '${{ steps.copy-environment-versions.outputs.frontend_components_json }}'
+          json: '${{ steps.copy-environment-versions.outputs.transformed_frontend_components_json }}'
 
       - name: Convert database components json to Markdown
         uses: buildingcash/json-to-markdown-table-action@v1
         id: database_md
         with:
-          json: '${{ steps.copy-environment-versions.outputs.database_components_json }}'
+          json: '${{ steps.copy-environment-versions.outputs.transformed_database_components_json }}'
 
       - name: Create pull request
         id: create_pull_request
