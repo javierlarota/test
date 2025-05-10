@@ -17,8 +17,12 @@ on:
           - dev
           - qa
 
+permissions:
+  contents: write
+  pull-requests: write
+
 jobs:
-  create-pull-request-for-release:
+  create-pull-request-to-copy-versions:
     runs-on: ubuntu-latest
 
     steps:
