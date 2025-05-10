@@ -1,0 +1,75 @@
+[
+  {
+    "componentName": "nexus-backend-api-service",
+    "componentType": "backend",
+    "componentFolderName": "nexus-backend-api-service",
+    "gitHubRepository": "barracuda-internal/nexus-backend-api-service",
+    "isOwnRepo": "true"
+  },
+  {
+    "componentName": "nexus-ui-host",
+    "componentType": "frontend",
+    "componentFolderName": "nexus-ui-host",
+    "gitHubRepository": "barracuda-internal/nexus-ui-host",
+    "isOwnRepo": "true"
+  },
+  {
+    "componentName": "nexus-graphql-mesh",
+    "componentType": "backend",
+    "componentFolderName": "nexus-graphql-mesh",
+    "gitHubRepository": "barracuda-internal/nexus-backend-graphql-mesh-gateway",
+    "isOwnRepo": "true"
+  },
+  {
+    "componentName": "nexus-backend-account-service",
+    "componentType": "backend",
+    "componentFolderName": "nexus-backend-account-service",
+    "gitHubRepository": "barracuda-internal/nexus-backend-account-service",
+    "isOwnRepo": "true"
+  },
+  {
+    "componentName": "nexus-backend-reporting-service",
+    "componentType": "backend",
+    "componentFolderName": "nexus-backend-reporting-service",
+    "gitHubRepository": "barracuda-internal/nexus-backend-reporting-service",
+    "isOwnRepo": "true"
+  },
+  {
+    "componentName": "nexus-backend-report-generation-service",
+    "componentType": "backend",
+    "componentFolderName": "nexus-backend-report-generation-service",
+    "gitHubRepository": "barracuda-internal/nexus-ui-host",
+    "isOwnRepo": "false"
+  },
+  {
+    "componentName": "nexus-backend-kafka-rest-api",
+    "componentType": "backend",
+    "componentFolderName": "nexus-backend-kafka-rest-api",
+    "gitHubRepository": "barracuda-internal/nexus-backend-kafka-rest-api",
+    "isOwnRepo": "true"
+  },
+  {
+    "componentName": "nexus-backend-api-service-db-migration",
+    "componentType": "database",
+    "componentFolderName": "nexus-backend-api-service",
+    "artifactName": "nexus-backend-api-service-db-migration",
+    "gitHubRepository": "barracuda-internal/nexus-backend-api-service",
+    "isOwnRepo": "false"
+  },
+  {
+    "componentName": "nexus-backend-reporting-service-db-migration",
+    "componentType": "database",
+    "componentFolderName": "nexus-backend-reporting-service",
+    "artifactName": "nexus-backend-reporting-service-db-migration",
+    "gitHubRepository": "barracuda-internal/nexus-backend-reporting-service",
+    "isOwnRepo": "false"
+  },
+  {
+    "componentName": "nexus-backend-kafka-rest-api-db-migration",
+    "componentType": "database",
+    "componentFolderName": "nexus-backend-kafka-rest-api",
+    "artifactName": "nexus-backend-kafka-rest-api-db-migration",
+    "gitHubRepository": "barracuda-internal/nexus-backend-kafka-rest-api",
+    "isOwnRepo": "false"
+  }
+]

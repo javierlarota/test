@@ -51,6 +51,7 @@ foreach ($component in $components) {
     $sourceVersion = yq eval '.version' "$sourceArtifactFile"
     $sourceArtifact = yq eval '.artifact' "$sourceArtifactFile"
 
+    $existingTargetVersion = yq eval '.version' "$targetArtifactFile"
     $existingTargetArtifact = yq eval '.artifact' "$targetArtifactFile"
     $updated = ""
 
@@ -73,6 +74,7 @@ foreach ($component in $components) {
         component = $component.componentName
         gitHubRepository = $component.gitHubRepository
         version = $sourceVersion
+        currentVersion = $existingTargetVersion
         updated = $updated
     }
 }

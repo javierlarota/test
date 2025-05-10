@@ -1,0 +1,23 @@
+[
+    {
+        "environment": "dev",
+        "region": "us-east-2",
+        "regionShortName": "use2",
+        "environmentFolderName": "dev",
+        "clusterFolderName": "bn-use2-nexus-dev-eks01"
+    },
+    {
+        "environment": "qa",
+        "region": "us-east-2",
+        "regionShortName": "use2",
+        "environmentFolderName": "qa",
+        "clusterFolderName": "bn-use2-nexus-dev-eks01"
+    },
+    {
+        "environment": "prod",
+        "region": "us-east-2",
+        "regionShortName": "use2",
+        "environmentFolderName": "prod",
+        "clusterFolderName": "bn-use2-ops-prod-eks01"
+    }
+]

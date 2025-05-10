@@ -81,6 +81,7 @@ foreach ($backendComponent in $backendComponents) {
             serviceName = $backendComponent.componentName
             gitHubRepository = $backendComponent.gitHubRepository
             version = $sourceNewTag
+            currentVersion = $existingDockerImage.newTag
             updated = $updated
         }
     }

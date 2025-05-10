@@ -1,0 +1,56 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "type": "array",
+    "items": {
+        "type": "object",
+        "properties": {
+            "component": {
+                "type": "string"
+            },
+            "type": {
+                "type": "string"
+            },
+            "variablesToCreateOrUpdate": {
+                "type": "array",
+                "items": {
+                    "type": "object",
+                    "properties": {
+                        "name": {
+                            "type": "string"
+                        },
+                        "valuesPerEnvironment": {
+                            "type": "object",
+                            "patternProperties": {
+                                "^[a-zA-Z0-9-]+$": {
+                                    "type": "string",
+                                    "minLength": 1
+                                }
+                            },
+                            "additionalProperties": false
+                        }
+                    },
+                    "required": [ "name", "valuesPerEnvironment" ]
+                }
+            },
+            "variablesToDelete": {
+                "type": "array",
+                "items": {
+                    "type": "object",
+                    "properties": {
+                        "name": {
+                            "type": "string"
+                        },
+                        "environments": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "required": [ "name", "environments" ]
+                }
+            }
+        },
+        "required": [ "component", "type", "variablesToCreateOrUpdate", "variablesToDelete" ]
+    }
+}

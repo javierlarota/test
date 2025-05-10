@@ -52,6 +52,7 @@ foreach ($component in $components) {
     $sourceArtifact = yq eval '.artifact' "$sourceArtifactFile"
     $sourceArtifactChecksum = yq eval '.artifactChecksum' "$sourceArtifactFile"
 
+    $existingTargetVersion = yq eval '.version' "$targetArtifactFile"
     $existingTargetArtifact = yq eval '.artifact' "$targetArtifactFile"
     $updated = ""
 
@@ -74,6 +75,7 @@ foreach ($component in $components) {
     $results += [pscustomobject]@{
         component = $componentFolderName
         version = $sourceVersion
+        currentVersion = $existingTargetVersion
         updated = $updated
     }
 }

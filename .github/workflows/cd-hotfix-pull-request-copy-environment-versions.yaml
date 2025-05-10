@@ -31,10 +31,32 @@ jobs:
       - name: Copy environment versions
         id: copy-environment-versions
         run: |
-            ./.github/workflows/scripts/release-pullrequest-update-backend.ps1 -source_environment '${{ inputs.source_environment }}' -target_environment '${{ inputs.target_environment }}'
-            ./.github/workflows/scripts/release-pullrequest-update-database.ps1 -source_environment '${{ inputs.source_environment }}' -target_environment '${{ inputs.target_environment }}'
-            ./.github/workflows/scripts/release-pullrequest-update-frontend.ps1 -source_environment '${{ inputs.source_environment }}' -target_environment '${{ inputs.target_environment }}'
+          $backend_services_json = ./.github/workflows/scripts/release-pullrequest-update-backend.ps1 -source_environment '${{ inputs.source_environment }}' -target_environment '${{ inputs.target_environment }}'
+          $frontend_components_json = ./.github/workflows/scripts/release-pullrequest-update-database.ps1 -source_environment '${{ inputs.source_environment }}' -target_environment '${{ inputs.target_environment }}'
+          $database_components_json =  ./.github/workflows/scripts/release-pullrequest-update-frontend.ps1 -source_environment '${{ inputs.source_environment }}' -target_environment '${{ inputs.target_environment }}'
+        
+          echo "backend_services_json=$backend_services_json" >> $env:GITHUB_OUTPUT
+          echo "frontend_components_json=$frontend_components_json" >> $env:GITHUB_OUTPUT
+          echo "database_components_json=$database_components_json" >> $env:GITHUB_OUTPUT
         shell: pwsh
+
+      - name: Convert services json to Markdown
+        uses: buildingcash/json-to-markdown-table-action@v1
+        id: services_md
+        with:
+          json: '${{ steps.copy-environment-versions.outputs.backend_services_json }}'
+
+      - name: Convert frontend components json to Markdown
+        uses: buildingcash/json-to-markdown-table-action@v1
+        id: frontend_md
+        with:
+          json: '${{ steps.copy-environment-versions.outputs.frontend_components_json }}'
+
+      - name: Convert database components json to Markdown
+        uses: buildingcash/json-to-markdown-table-action@v1
+        id: database_md
+        with:
+          json: '${{ steps.copy-environment-versions.outputs.database_components_json }}'
 
       - name: Create pull request
         id: create_pull_request
@@ -55,8 +77,7 @@ jobs:
             ### Database
             ${{ steps.database_md.outputs.table }}
 
-            ${{ steps.generate_jira_tickets.outputs.jira_tickets }}
-          token: ${{ steps.repo-token.outputs.token }}
-          branch: "release/${{ inputs.target_environment }}/${{ inputs.release_name }}-${{ github.run_id }}"
-          labels: "release,${{ inputs.target_environment }}"
-          base: "main"        
+          token: ${{ secrets.GITHUB_TOKEN }}
+          branch: "copy/${{ inputs.source_environment }}-${{ inputs.target_environment }}/${{ github.run_id }}"
+          #labels: "release,${{ inputs.target_environment }}"
+          base: "main"
