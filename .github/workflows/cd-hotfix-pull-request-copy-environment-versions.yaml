@@ -48,8 +48,8 @@ jobs:
             }
           }
 
-          $transformed_json | ConvertTo-Json -Depth 10 | Out-File -FilePath transformed_backend_services.json
-          echo "transformed_backend_services_json=$(Get-Content transformed_backend_services.json -Raw)" >> $env:GITHUB_OUTPUT
+          $transformed_backend_services_json = $transformed_json | ConvertTo-Json -AsArray -Compress -Depth 10
+          echo "transformed_backend_services_json=$transformed_backend_services_json" >> $env:GITHUB_OUTPUT
 
 
 
