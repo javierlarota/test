@@ -6,7 +6,7 @@ namespace: nexus-qa
 images:
   - name: nexus-graphql-mesh-docker-image
     newName: 460853227243.dkr.ecr.us-east-1.amazonaws.com/nexus-graphql-mesh
-    newTag: 1.0.0-alpha.511-b7b670b
+    newTag: 1.0.0-alpha.501-6b79aea
 configMapGenerator:
   - name: nexus-graphql-mesh-map
     envs:
