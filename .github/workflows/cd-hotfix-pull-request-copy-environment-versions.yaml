@@ -23,8 +23,8 @@ permissions:
   pull-requests: write
 
 jobs:
-  copy-versions:
-    name: Copy Versions from ${{ github.event.inputs.source_environment }} to ${{ github.event.inputs.target_environment }}
+  sync-environment-versions:
+    name: Sync Versions from ${{ github.event.inputs.source_environment }} to ${{ github.event.inputs.target_environment }}
     runs-on: ubuntu-latest
 
     steps:
@@ -101,8 +101,8 @@ jobs:
         id: create_pull_request
         uses: peter-evans/create-pull-request@v6
         with:
-          commit-message: "Copy Versions from ${{ inputs.source_environment }} to ${{ inputs.target_environment }}"
-          title: "Copy Versions from ${{ inputs.source_environment }} to ${{ inputs.target_environment }}"
+          commit-message: "Sync Environment Versions: Copy from ${{ inputs.source_environment }} to ${{ inputs.target_environment }}"
+          title: "Sync Environment Versions: Copy from ${{ inputs.source_environment }} to ${{ inputs.target_environment }}"
           body: |
             This pull request copies all component versions from the **${{ inputs.source_environment }}** environment to the **${{ inputs.target_environment }}** environment.
 
