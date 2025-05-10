@@ -39,7 +39,7 @@ jobs:
           $frontend_components_json = ./.github/workflows/scripts/release-pullrequest-update-database.ps1 -source_environment '${{ inputs.source_environment }}' -target_environment '${{ inputs.target_environment }}'
           $database_components_json =  ./.github/workflows/scripts/release-pullrequest-update-frontend.ps1 -source_environment '${{ inputs.source_environment }}' -target_environment '${{ inputs.target_environment }}'
         
-            $transformed_json = $backend_services_json | ForEach-Object {
+            $transformed_json = $backend_services_json | ConvertFrom-Json | ForEach-Object {
             [PSCustomObject]@{
               serviceName    = $_.serviceName
               currentVersion = $_.currentVersion
