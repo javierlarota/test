@@ -1,0 +1,52 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - ../../../../base/nexus-backend-reporting-service
+#  - ../../../../base/neutron-sanity-tests-hook
+namespace: nexus-dev
+images:
+  - name: nexus-backend-reporting-service-docker-image
+    newName: 460853227243.dkr.ecr.us-east-1.amazonaws.com/nexus-backend-reporting-service
+    newTag: 1.0.0-alpha.637-263cd77
+  - name: nexus-backend-reporting-service-task-runner-docker-image
+    newName: 460853227243.dkr.ecr.us-east-1.amazonaws.com/nexus-backend-reporting-task-runner
+    newTag: 1.0.0-alpha.637-263cd77
+patches:
+  - path: patches/serviceAccount.yaml
+    target:
+      kind: ServiceAccount
+  - path: patches/reporting-schedules-cronjob.yaml
+    target:
+      name: cronjob-reporting-run-schedules
+  - target:
+      kind: Deployment
+    patch: |-
+      - op: add
+        path: /spec/template/spec/affinity
+        value:
+          nodeAffinity:
+            requiredDuringSchedulingIgnoredDuringExecution:
+              nodeSelectorTerms:
+              - matchExpressions:
+                - key: nexus/nodegroup
+                  operator: In
+                  values:
+                  - nexus
+      # Expose the metrics port - grafana alloy will look for ports with metrics in the name to scrape
+      # Add this to the base and remove overlays once the code exposing metrics is deployed to production
+      - op: add
+        path: /spec/template/spec/containers/0/ports
+        value:
+          - name: rep-svc-port
+            containerPort: 80
+          - name: ent-metrics
+            containerPort: 5000
+configMapGenerator:
+  - name: nexus-backend-reporting-service-map
+    envs:
+      - config.properties
+  - name: nexus-bakend-reporting-service-task-runner-docker-map
+    envs:
+      - cronjobs.properties
+components:
+  - ../components/tags

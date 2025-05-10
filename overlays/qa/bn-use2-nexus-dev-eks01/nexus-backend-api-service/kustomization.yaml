@@ -1,0 +1,33 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - ../../../../base/nexus-backend-api-service
+namespace: nexus-qa
+images:
+  - name: nexus-backend-api-service-docker-image
+    newName: 460853227243.dkr.ecr.us-east-1.amazonaws.com/nexus-backend-api-service
+    newTag: 1.0.0-alpha.417-94f4f30
+patches:
+  - path: patches/serviceAccount.yaml
+    target:
+      kind: ServiceAccount
+  - target:
+      kind: Deployment
+    patch: |-
+      - op: add
+        path: /spec/template/spec/affinity
+        value:
+          nodeAffinity:
+            requiredDuringSchedulingIgnoredDuringExecution:
+              nodeSelectorTerms:
+              - matchExpressions:
+                - key: nexus/nodegroup
+                  operator: In
+                  values:
+                  - nexus
+configMapGenerator:
+  - name: nexus-backend-api-service-map
+    envs:
+      - config.properties
+components:
+  - ../components/tags

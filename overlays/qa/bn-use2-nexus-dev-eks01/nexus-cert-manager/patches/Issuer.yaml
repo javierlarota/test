@@ -1,0 +1,19 @@
+---
+apiVersion: cert-manager.io/v1
+kind: Issuer
+metadata:
+  name: app-barracudanetworks-com
+  namespace: nexus-qa
+spec:
+  acme:
+    server: https://acme-v02.api.letsencrypt.org/directory
+    solvers:
+      - dns01:
+          route53:
+            hostedZoneID: Z099539290S0DKNUWZVH
+            region: us-east-2
+            role: arn:aws:iam::460853227243:role/cert-manager-nexus-qa
+            auth:
+              kubernetes:
+                serviceAccountRef:
+                  name: cert-manager-nexus

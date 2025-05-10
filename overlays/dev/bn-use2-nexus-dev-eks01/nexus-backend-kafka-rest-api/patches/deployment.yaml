@@ -1,0 +1,6 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nexus-backend-kafka-rest-api
+spec:
+  replicas: 2

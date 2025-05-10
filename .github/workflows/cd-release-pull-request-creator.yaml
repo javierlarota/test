@@ -1,0 +1,268 @@
+#############################################################
+# This workflow is triggered manually to create a pull request to promote a release
+#############################################################
+name: Create Pull Request to Promote Release
+run-name: Create Pull Request to promote Release ${{ inputs.release_name }} to ${{ inputs.target_environment }}
+
+on:
+  workflow_dispatch:
+    inputs:
+      release_name:
+        description: 'Release Name'
+        required: true
+        type: string
+      target_environment:
+        type: choice
+        description: Target Environment
+        options:
+          - qa
+          - prod
+
+  workflow_call:
+    inputs:
+      release_name:
+        description: 'Release Name'
+        required: true
+        type: string
+      target_environment:
+        type: string
+        description: Target Environment (qa or prod)
+      mabl_deployment_id:
+        type: string
+        description: Mabl Deployment ID
+        default: ''
+
+# @source https://docs.github.com/en/actions/deployment/security-hardening-your-deployments/configuring-openid-connect-in-amazon-web-services
+permissions:
+  id-token: write # This is required for requesting the JWT token
+  contents: read  # This is required for actions/checkout
+
+env:
+  SOURCE_ENVIRONMENT: "dev"  # Releases are always created from dev environment.
+  SOURCE_CLUSTER: "bn-use2-nexus-dev-eks01" # No need to make this configurable. There is only one cluster for dev environments.
+
+jobs:
+  create-pull-request-for-release:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout the repository from the release tag
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.release_name }} # The pull request is created from the release tag. This will ensure that if there are other changes in the main branch, they are not included in the pull request.
+          show-progress: false
+
+      - name: Update backend kustomization.yaml files and environment variables
+        id: update_backend_versions
+        run: |
+          $backend_services_json = ./.github/workflows/scripts/release-pullrequest-update-backend.ps1 -source_environment '${{ env.SOURCE_ENVIRONMENT }}' -target_environment '${{ inputs.target_environment }}'
+          Write-Host "backend_services_json=$backend_services_json"
+          ./.github/workflows/scripts/release-pullrequest-update-config-properties.ps1 -target_environment '${{ inputs.target_environment }}'
+
+          # Modify the backend_services_json to add a link to the release
+          $backend_services = $backend_services_json | ConvertFrom-Json
+          $updated_backend_services = @()
+          foreach ($service in $backend_services) {
+            $updated_backend_services += [pscustomobject]@{
+              serviceName = "$($service.serviceName)"
+              version = "[$($service.version)](https://github.com/$($service.gitHubRepository)/releases/tag/${{ inputs.release_name }})"
+              updated = "$($service.updated)"
+            }
+          }
+          $backend_services_json = $updated_backend_services | ConvertTo-Json -AsArray -Compress -Depth 10
+
+          echo "backend_services_json=$backend_services_json" >> $env:GITHUB_OUTPUT
+        shell: pwsh
+
+      - name: Update frontend artifact.yaml files and environment variables
+        id: update_frontend_versions
+        run: |
+          $frontend_components_json = ./.github/workflows/scripts/release-pullrequest-update-frontend.ps1 -source_environment '${{ env.SOURCE_ENVIRONMENT }}' -target_environment '${{ inputs.target_environment }}'
+          ./.github/workflows/scripts/release-pullrequest-update-variables-json.ps1 -target_environment '${{ inputs.target_environment }}' -componentType "frontend"
+
+          # Modify the backend_services_json to add a link to the release
+          $frontend_components = $frontend_components_json | ConvertFrom-Json
+          $updated_frontend_components = @()
+          foreach ($component in $frontend_components) {
+            $updated_frontend_components += [pscustomobject]@{
+              component = "$($component.component)"
+              version = "[$($component.version)](https://github.com/$($component.gitHubRepository)/releases/tag/${{ inputs.release_name }})"
+              updated = "$($component.updated)"
+            }
+          }
+          $frontend_components_json = $updated_frontend_components | ConvertTo-Json -AsArray -Compress -Depth 10
+
+          echo "frontend_components_json=$frontend_components_json" >> $env:GITHUB_OUTPUT
+        shell: pwsh
+
+      - name: Update database artifact.yaml files and environment variables
+        id: update_database_versions
+        run: |
+          $database_components_json = ./.github/workflows/scripts/release-pullrequest-update-database.ps1 -source_environment '${{ env.SOURCE_ENVIRONMENT }}' -target_environment '${{ inputs.target_environment }}'
+
+          echo "database_components_json=$database_components_json" >> $env:GITHUB_OUTPUT
+        shell: pwsh
+
+      - name: Get Github App token
+        uses: tibdex/github-app-token@v2
+        id: repo-token
+        with:
+          app_id: ${{ secrets.NEUTRON_APP_ID }}
+          private_key: ${{ secrets.NEUTRON_APP_PRIVATE_KEY }}
+
+      - name: Generate list of Jira tickets
+        id: generate_jira_tickets
+        run: |
+          # If this fails, for exacmple, the GitHub API or Jira API could throw an error.
+          # We don't want to block the workflow. The pull request will not include Jira tickets.
+          try {
+            # Get the list of Jira tickets from the release tag.
+            ./.github/workflows/scripts/collect-jira-tickets.ps1 -JiraToken "${{ secrets.JIRA_TOKEN }}"
+
+            # Put the content of the file JiraTickets.md into the output, so it can be used in the pull request body.
+            $jira_tickets = Get-Content -Path "JiraTickets.md" -Raw
+          } catch {
+            # If an error occurs, set jira_tickets to an empty string
+            Write-Host "An error occurred while processing JiraTickets.md. Setting jira_tickets to an empty string."
+            Write-Host "Full Error Details: $($_ | Out-String)"
+
+            $jira_tickets = ""
+          }
+
+          echo "jira_tickets<<EOF" >> $env:GITHUB_OUTPUT
+          echo "$jira_tickets" >> $env:GITHUB_OUTPUT
+          echo "EOF" >> $env:GITHUB_OUTPUT
+
+          Remove-Item -Path "deploymentData.json" -Force
+          Remove-Item -Path "JiraTickets.md" -Force
+        env:
+          GH_TOKEN: ${{ steps.repo-token.outputs.token }}
+        shell: pwsh
+
+      - name: Convert services json to Markdown
+        uses: buildingcash/json-to-markdown-table-action@v1
+        id: services_md
+        with:
+          json: '${{ steps.update_backend_versions.outputs.backend_services_json }}'
+
+      - name: Convert frontend components json to Markdown
+        uses: buildingcash/json-to-markdown-table-action@v1
+        id: frontend_md
+        with:
+          json: '${{ steps.update_frontend_versions.outputs.frontend_components_json }}'
+
+      - name: Convert database components json to Markdown
+        uses: buildingcash/json-to-markdown-table-action@v1
+        id: database_md
+        with:
+          json: '${{ steps.update_database_versions.outputs.database_components_json }}'
+
+      - name: Set Mabl Deployment URL
+        id: set_mabl_deployment_url
+        run: |
+          if [ -z "${{ inputs.mabl_deployment_id }}" ]; then
+            mabl_deployment_url="Not Available"
+          else
+            mabl_deployment_url="https://app.mabl.com/workspaces/guD1JX4fMWm5UZSgAQxrPw-w/events/${{ inputs.mabl_deployment_id }}"
+          fi
+
+          echo "mabl_deployment_url=$mabl_deployment_url" >> $GITHUB_OUTPUT
+        shell: bash
+
+      - name: Create pull request
+        id: create_pull_request
+        uses: peter-evans/create-pull-request@v6
+        with:
+          commit-message: "Promote release ${{ inputs.release_name }} to ${{ inputs.target_environment }}"
+          title: "Promote release ${{ inputs.release_name }} to ${{ inputs.target_environment }}"
+          body: |
+            This pull request is to promote the release **${{ inputs.release_name }}** to the **${{ inputs.target_environment }}** environment.
+
+            **MABL Deployment URL:** <${{ steps.set_mabl_deployment_url.outputs.mabl_deployment_url }}>
+
+            ## Check List
+            - [ ] Infrastructure changes have been applied (If applicable)
+            - [ ] Database changes have been applied (If applicable)
+            - [ ] Sanity Tests passed
+
+            ## Services and Components included in the release
+            ### Backend
+            ${{ steps.services_md.outputs.table }}
+
+            ### Frontend
+            ${{ steps.frontend_md.outputs.table }}
+
+            ### Database
+            ${{ steps.database_md.outputs.table }}
+
+            ${{ steps.generate_jira_tickets.outputs.jira_tickets }}
+          token: ${{ steps.repo-token.outputs.token }}
+          branch: "release/${{ inputs.target_environment }}/${{ inputs.release_name }}-${{ github.run_id }}"
+          labels: "release,${{ inputs.target_environment }}"
+          base: "main"
+
+      - name: Check If the Pull Request contains changes in the database folder
+        id: check-database-changes
+        run: |
+          $database_components_json = '${{ steps.update_database_versions.outputs.database_components_json }}'
+          $targetEnvironment = Get-Content -Path ".github/workflows/config/environments.json" | ConvertFrom-Json | Where-Object { $_.environment -eq "${{ inputs.target_environment }}" }
+
+          # database_components_json is a json array string, check if there are elements with the property "updated" different than empty string
+          $database_changes = 'false'
+          $updated_components = @()
+          foreach ($database_component in $database_components_json | ConvertFrom-Json) {
+            if ($database_component.updated -ne "") {
+              $database_changes = 'true'
+
+              $updated_components += [pscustomobject]@{
+                component = $($database_component.component)
+                region = $($targetEnvironment.regionShortName)
+                version = $($database_component.version)
+              }
+            }
+          }
+
+          echo "database_changes=$database_changes" >> $env:GITHUB_OUTPUT
+          echo "updated_components=$(ConvertTo-Json $updated_components -Compress)" >> $env:GITHUB_OUTPUT
+        shell: pwsh
+        env:
+          GITHUB_TOKEN: ${{ steps.repo-token.outputs.token }}
+
+      - name: Add comment to the pull request if there are changes in the database folder
+        if: steps.check-database-changes.outputs.database_changes == 'true'
+        run: |
+          components_json='${{ steps.check-database-changes.outputs.updated_components }}'
+          apply_commands=""
+          for row in $(echo "${components_json}" | jq -r '.[] | @base64'); do
+              _jq() {
+                echo ${row} | base64 --decode | jq -r ${1}
+              }
+              region=$(_jq '.region')
+              component=$(_jq '.component')
+              version=$(_jq '.version')
+              apply_commands+=$'```\n'
+              apply_commands+="/apply database migration ${{ inputs.target_environment }} $region $component $version"
+              apply_commands+=$'\n'
+              apply_commands+=$'```\n'
+          done
+
+          gh pr comment ${{ steps.create_pull_request.outputs.pull-request-number }} --body "
+          ### Database Changes Detected For Target Environment ${{ inputs.target_environment }}
+
+          Database changes detected in this pull request. Please review and apply them before merging.
+
+          After unanimous approval, apply the database changes by commenting on this Pull Request with the following command:
+
+          $apply_commands
+          "
+        env:
+          GITHUB_TOKEN: ${{ steps.repo-token.outputs.token }}
+        shell: bash
+
+      - name: Print step Summary
+        if: always()
+        run: |
+          echo "### Release Pull Request Summary" >> $GITHUB_STEP_SUMMARY
+          echo "Pull Request Number: ${{ steps.create_pull_request.outputs.pull-request-number }}" >> $GITHUB_STEP_SUMMARY
+          echo "Pull Request URL: ${{ steps.create_pull_request.outputs.pull-request-url }}" >> $GITHUB_STEP_SUMMARY
+          echo "Pull Request Branch: ${{ steps.create_pull_request.outputs.pull-request-branch }}" >> $GITHUB_STEP_SUMMARY

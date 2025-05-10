@@ -1,0 +1,16 @@
+{
+    "API_MESH_URL": "https://qa.dev01.useast2.nexus.aws.cudaops.com/graphql",
+    "IDP_CLIENT_ID": "e19530a84c5d6abc17a53671b44c244db220d196e245d22759a34342a99e82a7",
+    "IDP_LOGOUT_REDIRECT_URL": "https://login.qa.cudaops.com/auth/logout/",
+    "IDP_REDIRECT_URL": "https://qa.nexus.cudaops.com/",
+    "IDP_URL": "https://auth.bcc.qa.cudaops.com",
+    "TARGET_CLOUD_FRONT_DISTRIBUTION_ID": "E1ICKAKAYRBFQT",
+    "TARGET_S3_BUCKET_PATH": "nexus-ui-useast2-qa",
+    "MIXPANEL_TOKEN": "063c67642e59ec6bca5cb0da7c588b8b",
+    "PAM_API_URL": "https://api.qa.pam-cudaops.com",
+    "PRODUCT_ACTIVATE_URL": "http://activate.qa.pam-cudaops.com/",
+    "BCC_PORTAL": "https://login.qa.cudaops.com",
+    "MSP_APP_URL": "https://mspui-ws-3.ci.mspui.cudaops.com",
+    "TARGET_S3_BUCKET_REGION": "us-east-2",
+    "INTERCOM_APP_ID": "ngi9m04w"
+}

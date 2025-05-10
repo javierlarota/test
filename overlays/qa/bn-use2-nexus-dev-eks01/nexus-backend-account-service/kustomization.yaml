@@ -1,0 +1,37 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - ../../../../base/nexus-backend-account-service
+#  - ../../../../base/neutron-sanity-tests-hook
+namespace: nexus-qa
+images:
+  - name: nexus-backend-account-service-docker-image
+    newName: 460853227243.dkr.ecr.us-east-1.amazonaws.com/nexus-backend-account-service
+    newTag: 1.0.0-alpha.143-2c2b218
+patches:
+  - path: patches/serviceAccount.yaml
+    target:
+      kind: ServiceAccount
+  - path: patches/secrets.yaml
+    target:
+      kind: ExternalSecret
+  - target:
+      kind: Deployment
+    patch: |-
+      - op: add
+        path: /spec/template/spec/affinity
+        value:
+          nodeAffinity:
+            requiredDuringSchedulingIgnoredDuringExecution:
+              nodeSelectorTerms:
+              - matchExpressions:
+                - key: nexus/nodegroup
+                  operator: In
+                  values:
+                  - nexus
+configMapGenerator:
+  - name: nexus-backend-account-service-map
+    envs:
+      - config.properties
+components:
+  - ../components/tags

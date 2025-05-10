@@ -1,0 +1,28 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  annotations:
+    cert-manager.io/cluster-issuer: "letsencrypt"
+    external-dns.alpha.kubernetes.io/hostname: example-2048.dev01.useast2.nexus.aws.cudaops.com
+    kubernetes.io/tls-acme: "true"
+  name: example-2048
+  namespace: tn-nexus-dev
+  labels:
+    app: example-2048
+spec:
+  ingressClassName: nginx-internal
+  rules:
+    - host: example-2048.dev01.useast2.nexus.aws.cudaops.com
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: example-2048
+                port:
+                  number: 80
+  tls:
+    - hosts:
+      - example-2048.dev01.useast2.nexus.aws.cudaops.com
+      secretName: example-2048-tls-certificate

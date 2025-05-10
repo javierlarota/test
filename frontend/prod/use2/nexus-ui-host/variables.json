@@ -1,0 +1,16 @@
+{
+    "API_MESH_URL": "https://api.app.barracudanetworks.com/graphql",
+    "IDP_CLIENT_ID": "ae0e5c9ea30c027421cd557b27d51a27cdf9395e988b81f5b32a8eeaf8b3b3a2",
+    "IDP_LOGOUT_REDIRECT_URL": "https://login.barracudanetworks.com/auth/logout/",
+    "IDP_REDIRECT_URL": "https://app.barracudanetworks.com/",
+    "IDP_URL": "https://auth.barracudanetworks.com",
+    "TARGET_CLOUD_FRONT_DISTRIBUTION_ID": "E1J5U3JC1GC7IR",
+    "TARGET_S3_BUCKET_PATH": "nexus-ui-useast2-prod",
+    "MIXPANEL_TOKEN": "1320f2411f85edb0c4282e94ff8abaf8",
+    "PAM_API_URL": "https://api.production.pam-cudasvc.com",
+    "PRODUCT_ACTIVATE_URL": "http://activate.barracudanetworks.com/",
+    "BCC_PORTAL": "https://login.barracudanetworks.com",
+    "MSP_APP_URL": "http://manage.msp.barracudanetworks.com",
+    "TARGET_S3_BUCKET_REGION": "us-east-2",
+    "INTERCOM_APP_ID": "crjjj62y"
+}

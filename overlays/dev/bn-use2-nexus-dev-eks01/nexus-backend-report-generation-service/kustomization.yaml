@@ -1,0 +1,39 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - ../../../../base/nexus-backend-report-generation-service
+namespace: nexus-dev
+images:
+  - name: nexus-backend-report-generation-service-docker-image
+    newName: 460853227243.dkr.ecr.us-east-1.amazonaws.com/nexus-backend-report-generation-service
+    newTag: 1.0.0-alpha.2149-933f5d1
+configMapGenerator:
+  - name: nexus-backend-report-generation-service-map
+    envs:
+      - config.properties
+components:
+  - ../components/tags
+patches:
+  - target:
+      kind: Deployment
+    patch: |-
+      - op: add
+        path: /spec/template/spec/affinity
+        value:
+          nodeAffinity:
+            requiredDuringSchedulingIgnoredDuringExecution:
+              nodeSelectorTerms:
+              - matchExpressions:
+                - key: nexus/nodegroup
+                  operator: In
+                  values:
+                  - nexus
+      # Expose the metrics port - grafana alloy will look for ports with metrics in the name to scrape
+      # Add this to the base and remove overlays once the code exposing metrics is deployed to production
+      - op: add
+        path: /spec/template/spec/containers/0/ports
+        value:
+          - name: http
+            containerPort: 8090
+          - name: ent-metrics
+            containerPort: 8090

@@ -1,0 +1,43 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - ../../../../base/nexus-backend-reporting-service
+#  - ../../../../base/neutron-sanity-tests-hook
+namespace: tn-nexus-prod
+images:
+  - name: nexus-backend-reporting-service-docker-image
+    newName: 460853227243.dkr.ecr.us-east-1.amazonaws.com/nexus-backend-reporting-service
+    newTag: 1.0.0-alpha.607-6ba0407
+  - name: nexus-backend-reporting-service-task-runner-docker-image
+    newName: 460853227243.dkr.ecr.us-east-1.amazonaws.com/nexus-backend-reporting-task-runner
+    newTag: 1.0.0-alpha.609-102234a
+patches:
+  - path: patches/serviceAccount.yaml
+    target:
+      kind: ServiceAccount
+  - path: patches/reporting-schedules-cronjob.yaml
+    target:
+      name: cronjob-reporting-run-schedules
+  - target:
+      kind: Deployment
+    patch: |-
+      - op: add
+        path: /spec/template/spec/affinity
+        value:
+          nodeAffinity:
+            requiredDuringSchedulingIgnoredDuringExecution:
+              nodeSelectorTerms:
+              - matchExpressions:
+                - key: nexus/nodegroup
+                  operator: In
+                  values:
+                  - nexus
+configMapGenerator:
+  - name: nexus-backend-reporting-service-map
+    envs:
+      - config.properties
+  - name: nexus-bakend-reporting-service-task-runner-docker-map
+    envs:
+      - cronjobs.properties
+components:
+  - ../components/tags
